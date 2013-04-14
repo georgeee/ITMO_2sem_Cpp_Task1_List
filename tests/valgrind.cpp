@@ -23,7 +23,7 @@ int main() {
         List<int> l;
         for(int i=0; i<rand()%COUNT+COUNT/2; i++){
             l.push_back(i);
-        }00
+        }
         for(int i=0; i<rand()%(l.size()/2-5)+l.size()/2; i++)
             assert(i==l.pop_front());
     }
