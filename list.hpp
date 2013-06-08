@@ -21,10 +21,12 @@ private:
         friend class Iterator;
     private:
 
-        Node(T value) {
-            this->value = value;
-            next_node = prev_node = NULL;
-        }
+        Node(T value)
+                : next_node(nullptr)
+                , prev_node(nullptr)
+                , value(value)
+        {}
+                
         Node* next_node;
         Node* prev_node;
         T value;
@@ -39,7 +41,7 @@ public:
         Node * node_pointer;
     public:
 
-        Iterator(Node * const nodePtr) {
+        Iterator(Node * nodePtr) {
             this->node_pointer = nodePtr;
         }
 
@@ -57,9 +59,9 @@ public:
         }
 
         Iterator operator++(int) {
-            Iterator a = *this;
+            Iterator t = *this;
             ++(*this);
-            return a;
+            return t;
         }
 
         Iterator& operator--() {
@@ -88,7 +90,7 @@ public:
         const Node * node_pointer;
     public:
 
-        ConstIterator(Node * const nodePtr) {
+        ConstIterator(Node * nodePtr) {
             this->node_pointer = nodePtr;
         }
 
@@ -136,7 +138,7 @@ public:
         const char * msg;
     public:
 
-        ListException(const char * const msg) {
+        ListException(const char * msg) {
             this->msg = msg;
         }
 
@@ -153,27 +155,27 @@ private:
     }
 public:
 
-    List<T>() {
+    List() {
         init();
     }
 
-    List<T>(const List<T> & l) {
+    List(const List & l) {
         init();
-        for (List<T>::ConstIterator it = l.cbegin(); it != l.cend(); ++it) {
+        for (List::ConstIterator it = l.cbegin(); it != l.cend(); ++it) {
             push_back(*it);
         }
     }
 
-    int size() {
+    int size() const {
         return _size;
     }
 
-    bool is_empty() {
+    bool is_empty() const {
         return size() == 0;
     }
 private:
 
-    void throw_empty_exception() {
+    void throw_empty_exception() const {
         if (is_empty()) throw ListException("list is empty");
     }
 
@@ -206,7 +208,12 @@ public:
         return value;
     }
 
-    T back() {
+    T& back() {
+        throw_empty_exception();
+        return fake_node->prev_node->value;
+    }
+
+    T const& back() const {
         throw_empty_exception();
         return fake_node->prev_node->value;
     }
@@ -223,7 +230,12 @@ public:
         return value;
     }
 
-    T front() {
+    T& front() {
+        throw_empty_exception();
+        return fake_node->next_node->value;
+    }
+
+    T const& front() const {
         throw_empty_exception();
         return fake_node->next_node->value;
     }
@@ -251,18 +263,19 @@ public:
         return it;
     }
 
-    Iterator insert(Iterator it, T value) {
-        insert_after(it.node_pointer, new Node(value));
-        return ++it;
+    Iterator insert(Iterator it, T const& value) {
+        Node * node_pointer = it.node_pointer->prev_node;
+        insert_after(node_pointer, new Node(value));
+        return Iterator(node_pointer->next_node);
     }
 
-    List<T>& operator=(List<T> l) {
+    List& operator=(List l) {
         std::swap(l.fake_node, fake_node);
         std::swap(l._size, _size);
         return *this;
     }
 
-    ~List<T>() {
+    ~List() {
         for (Iterator it = begin(); it != end(); it = erase(it));
         delete fake_node;
     }

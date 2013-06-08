@@ -10,6 +10,7 @@
 #include "../list.hpp"
 
 #define BOOST_TEST_MODULE ListTesting
+#define BOOST_TEST_DYN_LINK
 #define BOOST_MAIN
 
 
